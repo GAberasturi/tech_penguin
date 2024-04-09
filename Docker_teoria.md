@@ -156,7 +156,7 @@ Y ya para esguince mental, dentro de maquinas virtuales, contenedores que a su v
 
 
 
-![Docker Arquitectura](D:\Documents\gabi\versia\vTE\Formacion\images\contenedores-docker_arquitectura.png)
+![Docker Arquitectura](./images/contenedores-docker_arquitectura.png)
 
 
 
@@ -164,7 +164,7 @@ Y ya para esguince mental, dentro de maquinas virtuales, contenedores que a su v
 
 
 
-![](D:\Documents\gabi\versia\vTE\Formacion\images\contenedores-componentes.png)
+![](./images/contenedores-componentes.png)
 
 **Docker** **Engine**
 
@@ -234,25 +234,25 @@ Los contendores únicamente tendrán acceso a los recursos definidos en la image
 
 ### docker build
 
-![](D:\Documents\gabi\versia\vTE\Formacion\images\contenedores-docker_build.png)
+![](./images/contenedores-docker_build.png)
 
 
 
 ### docker pull
 
-![](D:\Documents\gabi\versia\vTE\Formacion\images\contenedores-docker_pull.png)
+![](./images/contenedores-docker_pull.png)
 
 
 
 ### docker run
 
-![](D:\Documents\gabi\versia\vTE\Formacion\images\contenedores-docker_run.png)
+![](./images/contenedores-docker_run.png)
 
 
 
 ### docker push
 
-![](D:\Documents\gabi\versia\vTE\Formacion\images\contenedores-docker_push.png)
+![](./images/contenedores-docker_push.png)
 
 
 
