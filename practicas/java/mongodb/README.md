@@ -763,9 +763,9 @@ Se vuelve a repetir la operacion de CREAR desde el sawgger de OpenAPI en http://
 
 
 
+### 06. Añadir Test
 
-
-
+Se copia el fichero `finish/src/test/java/it/io/openliberty/guides/application/CrewServiceIT.java` en `start//src/test/java/it/io/openliberty/guides/application/CrewServiceIT.java`
 
 
 
