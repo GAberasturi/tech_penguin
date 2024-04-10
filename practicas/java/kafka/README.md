@@ -186,6 +186,24 @@ Se copia el fichero `finish/inventory/src/main/java/io/openliberty/guides/invent
 
 
 
+### 04. Configurando los conectors a kafka
+
+Se configuran los ficheros de propiedades para conectarse a kafka de los microservicios `system` e  `inventory` .
+
+
+
+Se copia los ficheros
+
+ `finish/system/src/main/resources/META-INF/microprofile-config.properties` en `start/system/src/main/resources/META-INF/microprofile-config.properties`
+
+`finish/inventory/src/main/resources/META-INF/microprofile-config.properties` en `start/inventory/src/main/resources/META-INF/microprofile-config.properties`
+
+
+
+
+
+### 
+
 
 
 ### Incidencias Practica 2 - Kafka
