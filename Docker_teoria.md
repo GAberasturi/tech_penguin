@@ -4,7 +4,7 @@
 
 
 
-## Indice
+## Índice
 
 
 
@@ -41,7 +41,7 @@
 
 El siguiente documento va ser una caso de uso practico de contenedores.
 
-- Se va centrar en el **uso local de contenedores** y NO va abordar posibles usos avanzados de los mismos como coreografía, Alta disponibilidad,...que podrían realizarse con [Docker Swarm](#docker) o Kubernetes.
+- Se va centrar en el **uso local de contenedores** y **NO** va abordar posibles usos avanzados de los mismos como coreografía, Alta disponibilidad,...que podrían realizarse con [Docker Swarm](#docker) o Kubernetes.
 - El **Sistema Operativo** base va ser **Windows**.
 - La aplicación desarrollada en **Java 1.11 y SpringBoot**.
 
