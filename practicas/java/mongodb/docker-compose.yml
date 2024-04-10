@@ -29,8 +29,6 @@ services:
       - tech-penguin-net
     ports:
       - 27017:27017
-    volumes:
-      - ./data:/home/mongodb/data
 
 ###########
 ## APP ##

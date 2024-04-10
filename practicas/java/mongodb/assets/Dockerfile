@@ -7,12 +7,15 @@ ARG LOCALITY=Markham
 ARG ORG=IBM
 ARG UNIT=OpenLiberty
 ARG COMMON_NAME=localhost
+ARG ALT_DNS_NAMES="DNS.1:tech-penguin-mongodb,DNS.2:localhost"
 
 # Generate a self-signed certificate and private key.
 RUN openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
     -out /tmp/cert.pem \
     -keyout /tmp/private.key \
-    -subj "/C=$COUNTRY/ST=$STATE/L=$LOCALITY/O=$ORG/OU=$UNIT/CN=$COMMON_NAME"
+    -subj "/C=$COUNTRY/ST=$STATE/L=$LOCALITY/O=$ORG/OU=$UNIT/CN=$COMMON_NAME" \
+    -addext "subjectAltName=$ALT_DNS_NAMES" \
+    -sha256
 
 # Combine the self-signed certificate and private key.
 RUN cat /tmp/private.key /tmp/cert.pem > /tmp/mongodb_tls.pem
