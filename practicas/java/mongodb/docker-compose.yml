@@ -1,0 +1,50 @@
+#################################################################################
+#
+# docker-compose para probar como conectar una aplicacion java a mongodb.
+#
+#
+# v0.1
+# Latest updated: 2024-04-12
+#
+#################################################################################
+
+version: '3'
+
+networks:
+  tech-penguin-net:
+    driver: bridge
+
+services:  
+  
+##########
+## BBDD ##
+##########
+  tech-penguin-mongodb:
+    build:
+      context: .
+      dockerfile: assets/Dockerfile
+    image: tech-penguin-mongodb
+    container_name: tech-penguin-mongodb-1
+    networks:
+      - tech-penguin-net
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data:/home/mongodb/data
+
+###########
+## APP ##
+###########
+  
+  tech-penguin-mongo-app:
+    build:
+      context: .
+      dockerfile: assets/Dockerfile_start
+    image: tech-penguin-mongo-app
+    container_name: tech-penguin-mongo-app-1
+    networks:
+      - tech-penguin-net
+    ports:
+      - 9080:9080
+    volumes:
+      - ./start:/home/openliberty/

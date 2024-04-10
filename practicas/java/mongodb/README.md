@@ -295,6 +295,351 @@ services:
 
 
 
+### 05. Modificar aplicación
+
+Vamos a proceder a modificar la aplicación para conectar la aplicación java a la BBDD mongo.
+
+
+
+Se copia el fichero `finish/src/main/java/io/openliberty/guides/mongo/MongoProducer.java` en `start/src/main/java/io/openliberty/guides/mongo/MongoProducer.java`
+
+Una vez copiado el fichero lo modificamos para ver la importancia de tener acceso al código.
+
+```
+public MongoClient createMongo() throws SSLException {
+        // tag::decode[]
+        String password = PasswordUtil.passwordDecode(encodedPass);
+        // end::decode[]
+        // tag::createCredential[]
+        MongoCredential creds = MongoCredential.createCredential(
+                user,
+                dbName,
+                password.toCharArray()
+        );
+        // end::createCredential[]
+
+        // tag::sslContext[]
+        SSLContext sslContext = JSSEHelper.getInstance().getSSLContext(
+                // tag::outboundSSLContext[]
+                "outboundSSLContext",
+                // end::outboundSSLContext[]
+                Collections.emptyMap(),
+                null
+        );
+        // end::sslContext[]
+```
+
+
+
+En la línea 74 añadimos el siguiente fragmento de código
+
+```
+        // A modo curiosidad mostramos la password de la BBDD Mongo
+        System.out.println("MongoDB password: " + password);
+```
+
+
+
+La clase debería quedar así.
+
+```
+public MongoClient createMongo() throws SSLException {
+        // tag::decode[]
+        String password = PasswordUtil.passwordDecode(encodedPass);
+        // end::decode[]
+        // tag::createCredential[]
+        MongoCredential creds = MongoCredential.createCredential(
+                user,
+                dbName,
+                password.toCharArray()
+        );
+        // end::createCredential[]
+
+        // A modo curiosidad mostramos la password de la BBDD Mongo
+        System.out.println("MongoDB password: " + password);
+
+        // tag::sslContext[]
+        SSLContext sslContext = JSSEHelper.getInstance().getSSLContext(
+                // tag::outboundSSLContext[]
+                "outboundSSLContext",
+                // end::outboundSSLContext[]
+                Collections.emptyMap(),
+                null
+        );
+        // end::sslContext[]
+```
+
+
+
+Se copia el fichero `finish/src/main/java/io/openliberty/guides/application/CrewService.java` en `start/src/main/java/io/openliberty/guides/application/CrewService.java`
+
+Este fichero es con el que se generan los endpoints de la API
+
+
+
+Se copia el fichero `finish/src/main/webapp/META-INF/microprofile-config.properties` en `start/src/main/webapp/META-INF/microprofile-config.properties`
+
+
+
+Se remplazar el fichero `start/src/main/liberty/config/server.xml` por este `start/src/main/webapp/META-INF/microprofile-config.properties`
+
+```
+<server description="Sample Liberty server">
+    <!-- tag::featureManager[] -->
+    <featureManager>
+        <!-- tag::cdiFeature[] -->
+        <feature>cdi-4.0</feature>
+        <!-- end::cdiFeature[] -->
+        <!-- tag::sslFeature[] -->
+        <feature>ssl-1.0</feature>
+        <!-- end::sslFeature[] -->
+        <!-- tag::mpConfigFeature[] -->
+        <feature>mpConfig-3.1</feature>
+        <!-- end::mpConfigFeature[] -->
+        <!-- tag::passwordUtilFeature[] -->
+        <feature>passwordUtilities-1.1</feature>
+        <!-- end::passwordUtilFeature[] -->
+        <feature>beanValidation-3.0</feature>	   
+        <feature>restfulWS-3.1</feature>
+        <feature>jsonb-3.0</feature>
+        <feature>mpOpenAPI-3.1</feature>
+    </featureManager>
+    <!-- end::featureManager[] -->
+
+    <variable name="http.port" defaultValue="9080"/>
+    <variable name="https.port" defaultValue="9443"/>
+    <variable name="app.context.root" defaultValue="/mongo"/>
+
+    <!-- tag::httpEndpoint[] -->
+    <httpEndpoint
+        host="*" 
+        httpPort="${http.port}" 
+        httpsPort="${https.port}" 
+        id="defaultHttpEndpoint"
+    />
+    <!-- end::httpEndpoint[] -->
+
+    <!-- tag::webApplication[] -->
+    <webApplication 
+        location="guide-mongodb-intro.war" 
+        contextRoot="${app.context.root}"
+    />
+    <!-- end::webApplication[] -->
+    <!-- tag::sslContext[] -->
+    <!-- tag::keyStore[] -->
+    <keyStore
+        id="outboundTrustStore" 
+        location="${server.output.dir}/resources/security/truststore.p12"
+        password="mongodb"
+        type="PKCS12" 
+    />
+    <!-- end::keyStore[] -->
+    <!-- tag::ssl[] -->
+    <ssl 
+        id="outboundSSLContext" 
+        keyStoreRef="defaultKeyStore" 
+        trustStoreRef="outboundTrustStore" 
+        sslProtocol="TLS" 
+    />
+    <!-- end::ssl[] -->
+    <!-- end::sslContext[] -->
+</server>
+
+```
+
+
+
+Cuando se modifique la configuración del servidor Open Liberty detectara las nuevas características.
+
+```
+tech-penguin-mongo-app-1  | [INFO] Copied file: /home/openliberty/src/main/liberty/config/server.xml to: /tmp/tempConfig14203631299352621759/server.xml
+tech-penguin-mongo-app-1  | [INFO] Configuration features have been added: [mpopenapi-3.1, jsonb-3.0, ssl-1.0, passwordutilities-1.1, restfulws-3.1, beanvalidation-3.0, cdi-4.0]
+tech-penguin-mongo-app-1  | [INFO] Running liberty:install-feature
+```
+
+y procederá a instalar y configurarlas
+
+```
+tech-penguin-mongo-app-1  | All features were successfully verified.
+tech-penguin-mongo-app-1  | [INFO] Installing features: [mpopenapi-3.1, mpconfig-3.1, jsonb-3.0, ssl-1.0, passwordutilities-1.1, restfulws-3.1, beanvalidation-3.0, cdi-4.0]
+```
+
+
+
+Se prueba la aplicación accediendo a la URL
+
+```
+http://localhost:9080/openapi/ui/
+```
+
+
+
+Inicialmente no cargara hasta que no tengamos el siguiente mensaje en el servidor 
+
+```
+tech-penguin-mongo-app-1  | [INFO]
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWPKI0820A: The default keystore has been created using the 'keystore_password' environment variable.
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWPKI0803A: SSL certificate created in 7.859 seconds. SSL key file: /home/openliberty/target/liberty/wlp/usr/servers/defaultServer/resources/security/key.p12
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKS4104A: LTPA keys created in 7.893 seconds. LTPA key file: /home/openliberty/target/liberty/wlp/usr/servers/defaultServer/resources/security/ltpa.keys
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKG0017I: The server configuration was successfully updated in 64.508 seconds.
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKF1037I: The server added the [appSecurity-5.0, beanValidation-3.0, cdi-4.0, distributedMap-1.0, expressionLanguage-5.0, jndi-1.0, jsonb-3.0, jsonp-2.1, mpOpenAPI-3.1, passwordUtilities-1.1, restfulWS-3.1, restfulWSClient-3.1, servlet-6.0, ssl-1.0, transportSecurity-1.0] features to the existing feature set.
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKF0012I: The server installed the following features: [appSecurity-5.0, beanValidation-3.0, cdi-4.0, distributedMap-1.0, expressionLanguage-5.0, jndi-1.0, jsonb-3.0, jsonp-2.1, mpConfig-3.1, mpOpenAPI-3.1, passwordUtilities-1.1, restfulWS-3.1, restfulWSClient-3.1, servlet-6.0, ssl-1.0, transportSecurity-1.0].
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKF0008I: Feature update completed in 64.916 seconds.
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKT0016I: Web application available (default_host): http://1a924dec7ccc:9080/openapi/ui/
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKT0016I: Web application available (default_host): http://1a924dec7ccc:9080/openapi/
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKZ0022W: Application guide-mongodb-intro has not started in 30.063 seconds.
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKF0008I: Feature update completed in 64.916 seconds.
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKT0016I: Web application available (default_host): http://1a924dec7ccc:9080/openapi/ui/
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKT0016I: Web application available (default_host): http://1a924dec7ccc:9080/openapi/
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKZ0022W: Application guide-mongodb-intro has not started in 30.063 seconds.
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKT0016I: Web application available (default_host): http://1a924dec7ccc:9080/mongo/
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKZ0001I: Application guide-mongodb-intro started in 119.380 seconds.
+
+```
+
+
+
+![image-20240407234345919](./mongo-guide-app-openapi.png)
+
+
+
+Accedemos a la pagina principal
+
+```
+http://localhost:9080/mongo
+```
+
+![image-20240407234816176](D:\Documents\gabi\Gabi\tech_penguin\practicas\img\mongo-guide-app.png)
+
+**Atencion al mensaje de la password!!**
+
+```
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKZ0001I: Application guide-mongodb-intro started in 119.380 seconds.
+tech-penguin-mongo-app-1  | [INFO] MongoDB password: openliberty
+tech-penguin-mongo-app-1  | [INFO] [WARNING ] SLF4J not found on the classpath.  Logging is disabled for the 'org.mongodb.driver' component
+```
+
+
+
+Se procede a realizar unas operaciones CRUD desde la el swgger de OpenAPI en http://localhost:9080/openapi/ui/
+
+- CREAR
+
+  ![image-20240407235311199](D:\Documents\gabi\Gabi\tech_penguin\practicas\img\mongo-guide-app-openapi-post-01.png)
+
+
+
+en la seccion del `Request body` se pone y se pulsa `execute`
+
+```
+{
+  "name": "Member1",
+  "rank": "Officer",
+  "crewID": "000001"
+}
+```
+
+
+
+![image-20240407235311199](D:\Documents\gabi\Gabi\tech_penguin\practicas\img\mongo-guide-app-openapi-post-02.png)
+
+
+
+Dara un error 500 y en la consola del servidor dara estos mensajes
+
+```
+tech-penguin-mongo-app-1  | [INFO] com.mongodb.MongoTimeoutException: Timed out while waiting for a server that matches ReadPreferenceServerSelector{readPreference=primary}. Client view of cluster state is {type=UNKNOWN, servers=[{address=localhost:27017, type=UNKNOWN, state=CONNECTING, exception={com.mongodb.MongoSocketOpenException: Exception opening socket}, caused by {java.net.ConnectException: Connection refused (Connection refused)}}]
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.connection.BaseCluster.createAndLogTimeoutException(BaseCluster.java:392)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.connection.BaseCluster.selectServer(BaseCluster.java:148)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.connection.SingleServerCluster.selectServer(SingleServerCluster.java:46)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.binding.ClusterBinding.getReadConnectionSource(ClusterBinding.java:108)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.client.internal.ClientSessionBinding.getConnectionSource(ClientSessionBinding.java:128)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.client.internal.ClientSessionBinding.getReadConnectionSource(ClientSessionBinding.java:92)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.operation.SyncOperationHelper.withSuppliedResource(SyncOperationHelper.java:141)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.operation.SyncOperationHelper.withSourceAndConnection(SyncOperationHelper.java:122)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.operation.FindOperation.lambda$execute$2(FindOperation.java:310)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.operation.SyncOperationHelper.lambda$decorateReadWithRetries$12(SyncOperationHelper.java:289)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.async.function.RetryingSyncSupplier.get(RetryingSyncSupplier.java:67)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.operation.FindOperation.execute(FindOperation.java:321)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.internal.operation.FindOperation.execute(FindOperation.java:71)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.client.internal.MongoClientDelegate$DelegateOperationExecutor.execute(MongoClientDelegate.java:153)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.client.internal.MongoIterableImpl.execute(MongoIterableImpl.java:130)
+tech-penguin-mongo-app-1  | [INFO]      at com.mongodb.client.internal.MongoIterableImpl.iterator(MongoIterableImpl.java:90)
+tech-penguin-mongo-app-1  | [INFO]      at io.openliberty.guides.application.CrewService.retrieve(CrewService.java:155)
+tech-penguin-mongo-app-1  | [INFO]      at io.openliberty.guides.application.CrewService$Proxy$_$$_WeldClientProxy.retrieve(Unknown Source)
+tech-penguin-mongo-app-1  | [INFO]      at jdk.internal.reflect.GeneratedMethodAccessor878.invoke(Unknown Source)
+tech-penguin-mongo-app-1  | [INFO]      at java.base/java.lang.reflect.Method.invoke(Method.java:572)
+tech-penguin-mongo-app-1  | [INFO]      at org.jboss.resteasy.core.MethodInjectorImpl.invoke(MethodInjectorImpl.java:170)
+tech-penguin-mongo-app-1  | [INFO]      at [internal classes]
+tech-penguin-mongo-app-1  | [INFO]      at org.jboss.resteasy.core.ResourceMethodInvoker.lambda$invokeOnTarget$2(ResourceMethodInvoker.java:474)
+tech-penguin-mongo-app-1  | [INFO]      at org.jboss.resteasy.core.interception.jaxrs.PreMatchContainerRequestContext.filter(PreMatchContainerRequestContext.java:434)
+tech-penguin-mongo-app-1  | [INFO]      at [internal classes]
+tech-penguin-mongo-app-1  | [INFO]      at org.jboss.resteasy.core.SynchronousDispatcher.lambda$invoke$4(SynchronousDispatcher.java:261)
+tech-penguin-mongo-app-1  | [INFO]      at org.jboss.resteasy.core.SynchronousDispatcher.lambda$preprocess$0(SynchronousDispatcher.java:161)
+tech-penguin-mongo-app-1  | [INFO]      at org.jboss.resteasy.core.interception.jaxrs.PreMatchContainerRequestContext.filter(PreMatchContainerRequestContext.java:434)
+tech-penguin-mongo-app-1  | [INFO]      at [internal classes]
+tech-penguin-mongo-app-1  | [INFO]      at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:614)
+tech-penguin-mongo-app-1  | [INFO]      at com.ibm.ws.webcontainer.servlet.ServletWrapper.service(ServletWrapper.java:1260)
+tech-penguin-mongo-app-1  | [INFO]      at [internal classes]
+tech-penguin-mongo-app-1  | [INFO]      at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+tech-penguin-mongo-app-1  | [INFO]      at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+tech-penguin-mongo-app-1  | [INFO]      at java.base/java.lang.Thread.run(Thread.java:839)
+tech-penguin-mongo-app-1  | [INFO] [ERROR   ] RESTEASY002375: Error processing request POST /mongo/api/crew - io.openliberty.guides.application.CrewService.add
+tech-penguin-mongo-app-1  | [INFO] Timed out while waiting for a server that matches WritableServerSelector. Client view of cluster state is {type=UNKNOWN, servers=[{address=localhost:27017, type=UNKNOWN, state=CONNECTING, exception={com.mongodb.MongoSocketOpenException: Exception opening socket}, caused by {java.net.ConnectException: Connection refused (Connection refused)}}]
+```
+
+
+
+El motivo que indica es que la BBDD rechaza la conexión, pero realmente el motivo es que al estar la aplicación ejecutándose dentro de una contenedor es que dentro del mismo no existe un servicio mongo ejecutándose en el puerto 27017.
+
+
+
+Modifiquemos el host de conexión en la aplicación. Para ello se debe modificar la el fichero `start/src/main/webapp/META-INF/microprofile-config.properties`
+
+Como los contenedores se están ejecutando en un docker compose nos vale con cambiar `localhost`por el nombre del servicio de la BBDD Mongo, es decir, `tech-penguin-mongodb` en la propiedad `mongo.hostname`
+
+```
+mongo.hostname=tech-penguin-mongodb
+# end::hostname[]
+# tag::port[]
+mongo.port=27017
+# end::port[]
+# tag::dbname[]
+mongo.dbname=testdb
+# end::dbname[]
+# tag::mongoUser[]
+mongo.user=sampleUser
+# end::mongoUser[]
+# tag::passEncoded[]
+mongo.pass.encoded={aes}APtt+/vYxxPa0jE1rhmZue9wBm3JGqFK3JR4oJdSDGWM1wLr1ckvqkqKjSB2Voty8g==
+# tag::passEncoded[]
+```
+
+
+
+Al guardar el fichero se recarga la configuracion.
+
+```
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKT0017I: Web application removed (default_host): http://1a924dec7ccc:9080/mongo/
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKZ0009I: The application guide-mongodb-intro has stopped successfully.
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKT0016I: Web application available (default_host): http://1a924dec7ccc:9080/mongo/
+tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKZ0003I: The application guide-mongodb-intro updated in 8.526 seconds.
+```
+
+
+
+Si se vuelve a intentar la operacion de crear desde OpenAPI (desde la ventana del navegador) pulsando de nuevo `execute`
+
+Nos dará el siguiente mensaje en el log del servidor
+
+```
+tech-penguin-mongo-app-1  | [INFO] [ERROR   ] CWPKI0824E: SSL HANDSHAKE FAILURE:  Host name verification error while connecting to host [tech-penguin-mongodb].  The host name used to access the server does not match the server certificate's SubjectDN or Subject Alternative Name information.  The extended error message from the SSL handshake exception is: [No name matching tech-penguin-mongodb found].
+```
+
+
+
+
+
 
 
 
