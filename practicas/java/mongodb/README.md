@@ -769,6 +769,12 @@ Se copia el fichero `finish/src/test/java/it/io/openliberty/guides/application/C
 
 
 
+[Ejemplos de salidas de comandos - Ejecucion de tests](#ejecucion-de-tests).
+
+Dariamos por finalizada la practica 1.
+
+
+
 
 
 ### Incidencias Practica 1 - Mongo
@@ -930,6 +936,41 @@ Successfully copied 3.07kB to \tech_penguin\practicas\java\mongodb\certs\
 [INFO] ************************************************************************
 [INFO] Source compilation was successful.
 ```
+
+
+
+#### Ejecucion de tests
+
+```
+tech-penguin-mongo-app-1  | [INFO]
+tech-penguin-mongo-app-1  | [INFO] -------------------------------------------------------
+tech-penguin-mongo-app-1  | [INFO]  T E S T S
+tech-penguin-mongo-app-1  | [INFO] -------------------------------------------------------
+tech-penguin-mongo-app-1  | [INFO] Running it.io.openliberty.guides.application.CrewServiceIT
+tech-penguin-mongo-app-1  |    === Adding 2 crew members to the database. ===
+tech-penguin-mongo-app-1  | [INFO] MongoDB password: openliberty
+tech-penguin-mongo-app-1  | [INFO] [WARNING ] SLF4J not found on the classpath.  Logging is disabled for the 'org.mongodb.driver' component
+tech-penguin-mongo-app-1  |       === Done. ===
+tech-penguin-mongo-app-1  |    === Updating crew member with id 66170adc92c9477b58f04fbc. ===
+tech-penguin-mongo-app-1  |       === Done. ===
+tech-penguin-mongo-app-1  |    === Listing crew members from the database. ===
+tech-penguin-mongo-app-1  |       === Done. There are 4 crew members. ===
+tech-penguin-mongo-app-1  |    === Removing 2 crew members from the database. ===
+tech-penguin-mongo-app-1  |       === Done. ===
+tech-penguin-mongo-app-1  | [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.60 s -- in it.io.openliberty.guides.application.CrewServiceIT
+tech-penguin-mongo-app-1  | [INFO]
+tech-penguin-mongo-app-1  | [INFO] Results:
+tech-penguin-mongo-app-1  | [INFO]
+tech-penguin-mongo-app-1  | [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+tech-penguin-mongo-app-1  | [INFO]
+tech-penguin-mongo-app-1  | [INFO] Rendering content with org.apache.maven.skins:maven-default-skin:jar:1.3 skin.
+tech-penguin-mongo-app-1  | [INFO] Integration tests finished.
+tech-penguin-mongo-app-1  | [INFO]
+```
+
+
+
+
 
 
 
