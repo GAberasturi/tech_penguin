@@ -194,13 +194,21 @@ Se configuran los ficheros de propiedades para conectarse a kafka de los microse
 
 Se copia los ficheros
 
- `finish/system/src/main/resources/META-INF/microprofile-config.properties` en `start/system/src/main/resources/META-INF/microprofile-config.properties`
+`finish/system/src/main/resources/META-INF/microprofile-config.properties` en `start/system/src/main/resources/META-INF/microprofile-config.properties`
 
 `finish/inventory/src/main/resources/META-INF/microprofile-config.properties` en `start/inventory/src/main/resources/META-INF/microprofile-config.properties`
 
 
 
 
+
+### 05. Configurando Open Liberty
+
+Para que el microservicio `system`funcione correctamente se deben de configurar las caracteristicas del servidor Open Liberty
+
+
+
+`finish/system/src/main/liberty/config/server.xml` en `start/system/src/main/liberty/config/server.xml`
 
 ### 
 
