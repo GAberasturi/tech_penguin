@@ -182,6 +182,58 @@ docker cp tech-penguin-mongodb-1:/home/mongodb/certs/truststore.p12 certs/
 
 
 
+### 03. Ejecutar entorno en modo desarrollador
+
+
+
+Se parte del supuesto que **NO se dispone de maven** instalado en el sistema. Para poder disponer de un entorno maven se va crear un contenedor con las características necesarias para poder realizar el ejemplo.
+
+
+
+Se crea un fichero llamado `Dockerfile_start` en el directorio `assets`
+
+**Dockerfile_start**
+
+```
+FROM maven:3.9.6-ibm-semeru-11-focal
+
+WORKDIR /home/openliberty
+
+# Create the directories.
+COPY start/ /home/openliberty/
+
+# Start application
+CMD ["mvn", "liberty:dev"]
+```
+
+
+
+En un terminal nuevo se compila la imagen.
+
+> **NOTA:** La primera vez tardara porque debe descargarse las imágenes base.
+
+```
+docker build -t tech-penguin-mongo-app -f assets/Dockerfile_start .
+```
+
+Mediante el comando `docker images` se puede comprobar la creación de la imagen.
+
+
+
+Se ejecuta el contenedor.
+
+> **NOTA:**  Se debe ajustar el path del volumen a montar.
+
+```
+docker run --rm --name tech-penguin-mongo-app-1 -v practicas\java\mongodb\start:/home/openliberty/ -p 9080:9080 tech-penguin-mongo-app
+```
+
+
+
+[Ejemplos de salidas de comandos - Arranque servidor Open Liberty](#arranque-servidor-open-liberty).
+
+
+
 
 
 ### Incidencias Practica 1 - Mongo
@@ -320,6 +372,28 @@ root@c23769513e8b:/# head -100 /home/mongodb/logs/mongodb.log
 Successfully copied 3.07kB to \tech_penguin\practicas\java\mongodb\certs\
 
 \tech_penguin\practicas\java\mongodb>
+```
+
+
+
+#### Arranque servidor Open Liberty
+
+```
+[INFO] CWWKM2010I: Searching for CWWKF0011I: in /home/openliberty/target/liberty/wlp/usr/servers/defaultServer/logs/messages.log. This search will timeout after 90 seconds.
+[INFO] [AUDIT   ] CWWKG0093A: Processing configuration drop-ins resource: /home/openliberty/target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/liberty-plugin-variable-config.xml
+[INFO] [AUDIT   ] CWWKZ0058I: Monitoring dropins for applications.
+[INFO] [AUDIT   ] CWWKF0012I: The server installed the following features: [mpConfig-3.1].
+[INFO] [AUDIT   ] CWWKF0011I: The defaultServer server is ready to run a smarter planet. The defaultServer server started in 67.108 seconds.
+[INFO] CWWKM2015I: Match number: 1 is [4/7/24, 20:53:02:754 UTC] 00000042 com.ibm.ws.kernel.feature.internal.FeatureManager            A CWWKF0011I: The defaultServer server is ready to run a smarter planet. The defaultServer server started in 67.108 seconds..
+[INFO] ************************************************************************
+[INFO] *    Liberty is running in dev mode.
+[INFO] *        Automatic generation of features: [ Off ]
+[INFO] *        Enter - Tests will run automatically when changes are detected.
+[INFO] *
+[INFO] *    Liberty server port information:
+[INFO] *        Liberty debug port: [ 7777 ]
+[INFO] ************************************************************************
+[INFO] Source compilation was successful.
 ```
 
 
