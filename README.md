@@ -68,7 +68,13 @@ Para realizar una gestión mas sencilla del entorno se creara un fichero `docker
 
 
 
+## Practica 2 - Kafka
 
+
+
+El objetivo de la practica es conectar desde una aplicación java arrancada en un servidor de aplicaciones java Open Liberty a un broker de Kafka.
+
+Para realizar una gestión mas sencilla del entorno se creara un fichero `docker-compose.yml` con el cual poder arrancar tanto el broker de Kafka con la aplicación en modo "desarrollador" e ir modificándola para ver como funciona.
 
 
 
