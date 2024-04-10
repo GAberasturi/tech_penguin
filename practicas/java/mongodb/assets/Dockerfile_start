@@ -1,0 +1,9 @@
+FROM maven:3.9.6-ibm-semeru-11-focal
+
+WORKDIR /home/openliberty
+
+# Create the directories.
+COPY start/ /home/openliberty/
+
+# Start application
+CMD ["mvn", "liberty:dev"]

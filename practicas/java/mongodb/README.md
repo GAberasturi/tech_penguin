@@ -234,6 +234,75 @@ docker run --rm --name tech-penguin-mongo-app-1 -v practicas\java\mongodb\start:
 
 
 
+### 04. Crear docker-compose
+
+Como ya se disponen como mínimo de dos terminales, uno para el contenedor mongo y otro para el entorno de desarrollo. Se crea un fichero `docker-compose.yml` que nos permita gestionar el entorno de un forma sencilla.
+
+
+
+**docker-compose.yml**
+
+```
+#################################################################################
+#
+# docker-compose para probar como conectar una aplicacion java a mongodb.
+#
+#
+# v0.1
+# Latest updated: 2024-04-12
+#
+#################################################################################
+
+version: '3'
+
+networks:
+  tech-penguin-net:
+    driver: bridge
+
+services:  
+  
+##########
+## BBDD ##
+##########
+  tech-penguin-mongodb:
+    build:
+      context: .
+      dockerfile: assets/Dockerfile
+    image: tech-penguin-mongodb
+    container_name: tech-penguin-mongodb-1
+    networks:
+      - tech-penguin-net
+    ports:
+      - 27017:27017
+
+###########
+## APP ##
+###########
+  
+  tech-penguin-mongo-app:
+    build:
+      context: .
+      dockerfile: assets/Dockerfile_start
+    image: tech-penguin-mongo-app
+    container_name: tech-penguin-mongo-app-1
+    networks:
+      - tech-penguin-net
+    ports:
+      - 9080:9080
+    volumes:
+      - ./start:/home/openliberty/
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### Incidencias Practica 1 - Mongo
