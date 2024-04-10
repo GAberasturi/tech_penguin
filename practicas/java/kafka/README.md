@@ -176,6 +176,16 @@ Se copia el fichero `finish/system/src/main/java/io/openliberty/guides/system/Sy
 
 
 
+### 03. Creacion de un consumidor
+
+El micrservicio `inventory` guarda en su inventario la informacion de la media de la carga del sistema que recibe de diferentes instancias del microservicio `system`.
+
+
+
+Se copia el fichero `finish/inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java` en `start/inventory/src/main/java/io/openliberty/guides/inventory/InventoryResource.java`
+
+
+
 
 
 ### Incidencias Practica 2 - Kafka
