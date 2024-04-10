@@ -381,7 +381,9 @@ Se copia el fichero `finish/src/main/webapp/META-INF/microprofile-config.propert
 
 
 
-Se remplazar el fichero `start/src/main/liberty/config/server.xml` por este `start/src/main/webapp/META-INF/microprofile-config.properties`
+Se remplazar el fichero `start/src/main/liberty/config/server.xml` por este `start/src/main/liberty/config/server.xml`
+
+**server.xml**
 
 ```
 <server description="Sample Liberty server">
@@ -499,7 +501,7 @@ tech-penguin-mongo-app-1  | [INFO] [AUDIT   ] CWWKZ0001I: Application guide-mong
 
 
 
-![image-20240407234345919](./mongo-guide-app-openapi.png)
+![image-20240407234345919](../../../images/mongo-guide-app-openapi.png)
 
 
 
@@ -509,7 +511,7 @@ Accedemos a la pagina principal
 http://localhost:9080/mongo
 ```
 
-![image-20240407234816176](D:\Documents\gabi\Gabi\tech_penguin\practicas\img\mongo-guide-app.png)
+![image-20240407234816176](../../../images/mongo-guide-app.png)
 
 **Atencion al mensaje de la password!!**
 
@@ -521,11 +523,11 @@ tech-penguin-mongo-app-1  | [INFO] [WARNING ] SLF4J not found on the classpath. 
 
 
 
-Se procede a realizar unas operaciones CRUD desde la el swgger de OpenAPI en http://localhost:9080/openapi/ui/
+Se procede a realizar unas operaciones CRUD desde el sawgger de OpenAPI en http://localhost:9080/openapi/ui/
 
 - CREAR
 
-  ![image-20240407235311199](D:\Documents\gabi\Gabi\tech_penguin\practicas\img\mongo-guide-app-openapi-post-01.png)
+  ![image-20240407235311199](../../../images/mongo-guide-app-openapi-post-01.png)
 
 
 
@@ -541,7 +543,7 @@ en la seccion del `Request body` se pone y se pulsa `execute`
 
 
 
-![image-20240407235311199](D:\Documents\gabi\Gabi\tech_penguin\practicas\img\mongo-guide-app-openapi-post-02.png)
+![image-20240407235311199](../../../images/mongo-guide-app-openapi-post-02.png)
 
 
 
@@ -638,7 +640,126 @@ tech-penguin-mongo-app-1  | [INFO] [ERROR   ] CWPKI0824E: SSL HANDSHAKE FAILURE:
 
 
 
+Se deben regenerar de nuevo los certificados añadiendo el nombre alternativo en el fichero `assets/Dockerfile`
 
+En la linea 10 se deben añadir el siguiente argumento. 
+
+```
+ARG ALT_DNS_NAMES="DNS.1:tech-penguin-mongodb,DNS.2:localhost"
+```
+
+Y en la linea 17 las dos siguientes.
+
+```
+    -addext "subjectAltName=$ALT_DNS_NAMES" \
+    -sha256
+```
+
+
+
+El fichero `assets/Dockerfile` deberia quedar asi.
+
+```
+FROM icr.io/appcafe/ibm-semeru-runtimes:open-11-jdk-ubi as staging
+
+# Define the variables for the OpenSSL subject.
+ARG COUNTRY=CA
+ARG STATE=Ontario
+ARG LOCALITY=Markham
+ARG ORG=IBM
+ARG UNIT=OpenLiberty
+ARG COMMON_NAME=localhost
+ARG ALT_DNS_NAMES="DNS.1:tech-penguin-mongodb,DNS.2:localhost"
+
+# Generate a self-signed certificate and private key.
+RUN openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
+    -out /tmp/cert.pem \
+    -keyout /tmp/private.key \
+    -subj "/C=$COUNTRY/ST=$STATE/L=$LOCALITY/O=$ORG/OU=$UNIT/CN=$COMMON_NAME" \
+    -addext "subjectAltName=$ALT_DNS_NAMES" \
+    -sha256
+
+# Combine the self-signed certificate and private key.
+RUN cat /tmp/private.key /tmp/cert.pem > /tmp/mongodb_tls.pem
+
+# Import combined file to truststore.
+RUN keytool -import -trustcacerts -keystore /tmp/truststore.p12 \
+    -storepass mongodb -storetype PKCS12 -alias mongo -file /tmp/cert.pem -noprompt
+
+FROM mongo:latest
+
+# Create the directories.
+RUN mkdir /home/mongodb
+RUN mkdir /home/mongodb/data
+RUN mkdir /home/mongodb/certs
+RUN mkdir /home/mongodb/logs
+RUN chown -R mongodb:mongodb /home/mongodb
+
+# Copy the certificates over from stage one.
+COPY --from=staging /tmp /home/mongodb/certs
+
+# Copy the configuration and setup files from
+# the host machine to the image.
+COPY assets/mongodb.conf /home/mongodb
+COPY assets/index.js /home/mongodb
+
+# Run MongodDB daemon and execute the setup script.
+RUN mongod \
+        --fork \
+        --config /home/mongodb/mongodb.conf \
+    && mongosh \
+        testdb \
+        -tls \
+        --tlsCAFile /home/mongodb/certs/cert.pem \
+        --tlsCertificateKeyFile: /home/mongodb/certs/mongodb_tls.pem \
+        --host localhost \
+        /home/mongodb/index.js \
+    && mongod --dbpath /home/mongodb/data --shutdown \
+    && chown -R mongodb /home/mongodb
+
+# Start MongoDB daemon when the image is run in a container.
+CMD ["mongod", "--config", "/home/mongodb/mongodb.conf"]
+
+```
+
+
+
+Se regenera la imagen de mongo
+
+```
+docker compose build tech-penguin-mongodb
+```
+
+Se arranca la BBDD mongo
+
+```
+docker compose up tech-penguin-mongodb -d
+```
+
+Copiamos los nuevos certificados en local
+
+```
+docker cp tech-penguin-mongodb-1:/home/mongodb/certs/cert.pem certs/cert.crt
+docker cp tech-penguin-mongodb-1:/home/mongodb/certs/mongodb_tls.pem certs/mongodb_tls.key
+docker cp tech-penguin-mongodb-1:/home/mongodb/certs/truststore.p12 start/src/main/liberty/config/resources/security
+docker cp tech-penguin-mongodb-1:/home/mongodb/certs/truststore.p12 finish/src/main/liberty/config/resources/security
+```
+
+Se para todo el entorno
+
+```
+docker compose stop
+```
+
+Y se vuelve a arrancar
+
+```
+docker compose up
+```
+
+
+
+Se vuelve a repetir la operacion de CREAR desde el sawgger de OpenAPI en http://localhost:9080/openapi/ui/
 
 
 
@@ -837,5 +958,4 @@ Successfully copied 3.07kB to \tech_penguin\practicas\java\mongodb\certs\
 **Mongo Express**
 
 - https://hub.docker.com/_/mongo-express
-
 
