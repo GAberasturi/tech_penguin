@@ -210,7 +210,7 @@ Para que el microservicio `system`funcione correctamente se deben de configurar 
 
 `finish/system/src/main/liberty/config/server.xml` en `start/system/src/main/liberty/config/server.xml`
 
-### 
+
 
 ### 06. Compilando la aplicacion
 
@@ -261,6 +261,131 @@ docker build -t inventory:1.0-SNAPSHOT inventory/.
 [Ejemplos de salidas de comandos - Docker build system](#docker-build-system).
 
 [Ejemplos de salidas de comandos - Docker build inventory](#docker-build-inventory).
+
+
+
+
+
+### 07. Creando docker-compose
+
+
+
+**docker-compose.yml**
+
+```
+#################################################################################
+#
+# docker-compose para probar como conectar una aplicacion java a kafka.
+#
+#
+# v0.1
+# Latest updated: 2024-04-12
+#
+#################################################################################
+
+version: '3'
+
+networks:
+  tech-penguin-net:
+    driver: bridge
+
+services:  
+  
+###########
+## KAFKA ##
+###########
+  kafka:
+    build:
+      context: .
+      dockerfile: assets/Dockerfile
+    image: bitnami/kafka:latest
+    hostname: kafka
+    container_name: tech-penguin-kafka-1
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    networks:
+      - tech-penguin-net
+
+  akhq:
+    image: tchiotludo/akhq
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "kafka:9092"
+    networks:
+      - tech-penguin-net
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+
+###########
+## APP ##
+###########
+  
+  tech-penguin-system-app:
+    build:
+      context: .
+      dockerfile: system/Dockerfile
+    image: system:1.0-SNAPSHOT
+    container_name: tech-penguin-system-app-1
+    environment:
+      MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      WLP_LOGGING_CONSOLE_LOGLEVEL: info
+    networks:
+      - tech-penguin-net
+    ports:
+      - 9083:9083
+
+  tech-penguin-inventory-app:
+    build:
+      context: .
+      dockerfile: inventory/Dockerfile
+    image: inventory:1.0-SNAPSHOT
+    container_name: tech-penguin-inventory-appp-1
+    environment:
+      MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      WLP_LOGGING_CONSOLE_LOGLEVEL: info
+    networks:
+      - tech-penguin-net
+    ports:
+      - 9085:9085
+```
+
+
+
+se guarda el fichero `docker-compose.yml` en la carpeta `start`
+
+
+
+Se arranca el entorno
+
+```
+docker compose up
+```
+
+[Ejemplos de salidas de comandos - Entorno arrancado](#entorno-arrancado).
+
+
+
+Una vez arrancado el entorno se puede comprobar accediendo a las URLS
+
+
+
+- HealthCheck Microservicio Inventory: http://localhost:9085/health
+- http://localhost:9085/inventory/systems
+- Consola AKHQ de Kafka: http://localhost:8080
+
+
 
 
 
@@ -449,6 +574,26 @@ What's Next?
   View a summary of image vulnerabilities and recommendations → docker scout quickview
 
 \practicas\java\kafka\start>
+```
+
+
+
+#### Entorno arrancado
+
+```
+ator.group.GroupCoordinator)
+tech-penguin-inventory-appp-1  | [INFO    ] RESTEASY002225: Deploying jakarta.ws.rs.core.Application: class io.openliberty.guides.inventory.InventoryApplication$Proxy$_$$_WeldClientProxy
+tech-penguin-inventory-appp-1  | [INFO    ] SRVE0242I: [inventory] [/] [io.openliberty.guides.inventory.InventoryApplication]: Initialization successful.
+tech-penguin-kafka-1           | [2024-04-11 15:18:48,530] INFO [GroupCoordinator 0]: Stabilized group system-load-status generation 3 (__consumer_offsets-21) with 1 members (kafka.coordinator.group.GroupCoordinator)
+tech-penguin-inventory-appp-1  | [err] [Default Executor-thread-10] INFO org.apache.kafka.clients.consumer.internals.ConsumerCoordinator - [Consumer clientId=consumer-system-load-status-1, groupId=system-load-status] Successfully joined group with generation Generation{generationId=3, memberId='consumer-system-load-status-1-f1abfc24-f3a5-4f85-90f6-90113876df41', protocol='range'}
+tech-penguin-inventory-appp-1  | [err] [Default Executor-thread-10] INFO org.apache.kafka.clients.consumer.internals.ConsumerCoordinator - [Consumer clientId=consumer-system-load-status-1, groupId=system-load-status] Finished assignment for group at generation 3: {consumer-system-load-status-1-f1abfc24-f3a5-4f85-90f6-90113876df41=Assignment(partitions=[system.load-0])}
+tech-penguin-kafka-1           | [2024-04-11 15:18:48,582] INFO [GroupCoordinator 0]: Assignment received from leader consumer-system-load-status-1-f1abfc24-f3a5-4f85-90f6-90113876df41 for group system-load-status for generation 3. The group has 1 members, 0 of which are static. (kafka.coordinator.group.GroupCoordinator)
+tech-penguin-inventory-appp-1  | [err] [Default Executor-thread-10] INFO org.apache.kafka.clients.consumer.internals.ConsumerCoordinator - [Consumer clientId=consumer-system-load-status-1, groupId=system-load-status] Successfully synced group in generation Generation{generationId=3, memberId='consumer-system-load-status-1-f1abfc24-f3a5-4f85-90f6-90113876df41', protocol='range'}
+tech-penguin-inventory-appp-1  | [err] [Default Executor-thread-10] INFO org.apache.kafka.clients.consumer.internals.ConsumerCoordinator - [Consumer clientId=consumer-system-load-status-1, groupId=system-load-status] Notifying assignor about the new Assignment(partitions=[system.load-0])
+tech-penguin-inventory-appp-1  | [err] [Default Executor-thread-10] INFO org.apache.kafka.clients.consumer.internals.ConsumerRebalanceListenerInvoker - [Consumer clientId=consumer-system-load-status-1, groupId=system-load-status] Adding newly assigned partitions: system.load-0
+tech-penguin-inventory-appp-1  | [err] [Default Executor-thread-10] INFO org.apache.kafka.clients.consumer.internals.ConsumerUtils - Setting offset for partition system.load-0 to the committed offset FetchPosition{offset=22, offsetEpoch=Optional[0], currentLeader=LeaderAndEpoch{leader=Optional[kafka:9092 (id: 0 rack: null)], epoch=2}}
+tech-penguin-inventory-appp-1  | [INFO    ] Host 554d98843544 was added: CpuLoadAverage: {"hostname":"554d98843544","loadAverage":1.71}
+tech-penguin-inventory-appp-1  | [INFO    ] Host 554d98843544 was updated: CpuLoadAverage: {"hostname":"554d98843544","loadAverage":1.33}
 ```
 
 
