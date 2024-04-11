@@ -1,0 +1,86 @@
+#################################################################################
+#
+# docker-compose para probar como conectar una aplicacion java a kafka.
+#
+#
+# v0.1
+# Latest updated: 2024-04-12
+#
+#################################################################################
+
+version: '3'
+
+networks:
+  tech-penguin-net:
+    driver: bridge
+
+services:  
+  
+###########
+## KAFKA ##
+###########
+  kafka:
+    build:
+      context: .
+      dockerfile: assets/Dockerfile
+    image: bitnami/kafka:latest
+    hostname: kafka
+    container_name: tech-penguin-kafka-1
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    networks:
+      - tech-penguin-net
+
+  akhq:
+    image: tchiotludo/akhq
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "kafka:9092"
+    networks:
+      - tech-penguin-net
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+
+###########
+## APP ##
+###########
+  
+  tech-penguin-system-app:
+    build:
+      context: .
+      dockerfile: system/Dockerfile
+    image: system:1.0-SNAPSHOT
+    container_name: tech-penguin-system-app-1
+    environment:
+      MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      WLP_LOGGING_CONSOLE_LOGLEVEL: info
+    networks:
+      - tech-penguin-net
+    ports:
+      - 9083:9083
+
+  tech-penguin-inventory-app:
+    build:
+      context: .
+      dockerfile: inventory/Dockerfile
+    image: inventory:1.0-SNAPSHOT
+    container_name: tech-penguin-inventory-appp-1
+    environment:
+      MP_MESSAGING_CONNECTOR_LIBERTY_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      WLP_LOGGING_CONSOLE_LOGLEVEL: info
+    networks:
+      - tech-penguin-net
+    ports:
+      - 9085:9085
