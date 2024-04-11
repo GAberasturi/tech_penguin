@@ -58,25 +58,33 @@ Por ejemplo posicionándonos en la rama `mongo-01` se podrá comenzar con un ent
 
 
 
-## Practica 1 - Mongo
+## Práctica 1 - Mongo
 
 
 
-El objetivo de la practica es conectar desde una aplicación java arrancada en un servidor de aplicaciones java Open Liberty a una BBDD mongo.
+El objetivo de la prácticaes conectar desde una aplicación java arrancada en un servidor de aplicaciones java Open Liberty a una BBDD mongo.
 
 Para realizar una gestión mas sencilla del entorno se creara un fichero `docker-compose.yml` con el cual poder arrancar tanto la BBDD mongo con la aplicación en modo "desarrollador" e ir modificándola para ver como funciona.
 
 
 
-## Practica 2 - Kafka
+## Práctica 2 - Kafka
 
 
 
-El objetivo de la practica es conectar desde una aplicación java arrancada en un servidor de aplicaciones java Open Liberty a un broker de Kafka.
+El objetivo de la prácticaes conectar desde una aplicación java arrancada en un servidor de aplicaciones java Open Liberty a un broker de Kafka.
 
 Para realizar una gestión mas sencilla del entorno se creara un fichero `docker-compose.yml` con el cual poder arrancar tanto el broker de Kafka con la aplicación en modo "desarrollador" e ir modificándola para ver como funciona.
 
 
+
+## Práctica 3 - PostgreSQL
+
+
+
+El objetivo de la prácticaes arrancar un contenedor de BBDD PostgreSQL e inicializarlo y ver como conectarnos al mismo desde un contenedor PGAdmin para poder gestionarlo.
+
+Para realizar una gestión mas sencilla del entorno se creara un fichero `docker-compose.yml` con el cual poder arrancar tanto la BBDD PostgreSQL como el PGAdmin para poder gestionarla.
 
 
 
