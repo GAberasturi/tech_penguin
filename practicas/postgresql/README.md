@@ -103,9 +103,9 @@ Con las credenciales puestas en el docker-compose se puede acceder
 
 ### 03. Arrancar una BBDD Postgresql docker
 
-Se arranca un contenedor postgresql. Para ello se modifica el docker-compose
+Se arranca un contenedor postgresql. Para ello se modifica el `docker-compose.yml`
 
-
+**docker-compose.yml**
 
 ```
 #################################################################################
@@ -143,25 +143,88 @@ services:
 
 
 
+Se para la ejecución del docker-compose anterior, como no se ha dejado en segundo plano se debe hacer mediante un CTR-C.
+
+
+
+Se arranca de nuevo el docker-compose modificado con la BBDD postgresql.
+
+```
+docker compose up
+```
+
+
+
+SE entra en PGadmin.
+
+http://localhost:8080
+
+Y configuramos la nueva BBDD
+
+![image-20240412125323450](../../images/pgadmin_03.png)
 
 
 
 
-### Incidencias Practica 3 - Postgresql
 
-Sección con incidencias que nos podemos encontrar.
-
-
-
-
-
-### Ejemplos de salidas de comandos
+![image-20240412130920280](../../images/pgadmin_04.png)
 
 
 
 
 
-#### Arranque PGAdmin
+![image-20240412131734588](../../images/pgadmin_05.png)
+
+
+
+|                      |                       |      |
+| -------------------- | --------------------- | ---- |
+| **General**          |                       |      |
+|                      | local-docker          |      |
+| **Connection**       |                       |      |
+| Host name/Address    | tech-penguin-postgres |      |
+| port                 | 5432                  |      |
+| Maintenance database | postgres              |      |
+| Username             | tecpenguin            |      |
+| Password             | tecpenguin.com        |      |
+
+
+
+
+
+![image-20240412131630841](../../images/pgadmin_06.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### **Incidencias Practica 3 - Postgresql**
+
+**Sección con incidencias que nos podemos encontrar.**
+
+
+
+
+
+### **Ejemplos de salidas de comandos**
+
+
+
+
+
+#### **Arranque PGAdmin**
 
 ```
 practicas\postgresql>docker compose up
@@ -180,20 +243,20 @@ tech-penguin-postgres-pgadmin-1  | [2024-04-12 10:42:28 +0000] [87] [INFO] Booti
 
 
 
-## Referencias
+## **Referencias**
 
 
 
 **Postgresql**
 
-- https://hub.docker.com/_/postgres
+- **https://hub.docker.com/_/postgres**
 - 
-- https://www.postgresqltutorial.com/postgresql-getting-started/load-postgresql-sample-database/
+- **https://www.postgresqltutorial.com/postgresql-getting-started/load-postgresql-sample-database/**
 
 
 
 **PGAdmin**
 
-- https://www.pgadmin.org/download/pgadmin-4-container/
-- https://hub.docker.com/r/dpage/pgadmin4/
-- https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html
+- **https://www.pgadmin.org/download/pgadmin-4-container/**
+- **https://hub.docker.com/r/dpage/pgadmin4/**
+- **https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html**

@@ -30,8 +30,11 @@ services:
     ports:
       - 8080:80
 
-
-# docker run -p 80:80 \
-#     -e 'PGADMIN_DEFAULT_EMAIL=user@domain.com' \
-#     -e 'PGADMIN_DEFAULT_PASSWORD=SuperSecret' \
-#     -d dpage/pgadmin4
+  tech-penguin-postgres:
+    image: postgres
+    container_name: tech-penguin-postgres-1
+    environment:
+      POSTGRES_USER: "tecpenguin"
+      POSTGRES_PASSWORD: "tecpenguin.com"
+    networks:
+      - tech-penguin-net
