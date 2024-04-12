@@ -185,8 +185,8 @@ Y configuramos la nueva BBDD
 | Host name/Address    | tech-penguin-postgres |      |
 | port                 | 5432                  |      |
 | Maintenance database | postgres              |      |
-| Username             | tecpenguin            |      |
-| Password             | tecpenguin.com        |      |
+| Username             | postgres              |      |
+| Password             | techpenguin.com       |      |
 
 
 
@@ -198,9 +198,125 @@ Y configuramos la nueva BBDD
 
 
 
+Se copia dentro del contenedor el backup.
+
+```
+\practicas\postgresql\backups>docker cp dvdrental.tar tech-penguin-postgres-1:/tmp/
+Successfully copied 2.84MB to tech-penguin-postgres-1:/tmp/
+
+\practicas\postgresql\backups>
+```
 
 
 
+Entramos en el contenedor
+
+```
+\practicas\postgresql\backups>docker exec -ti tech-penguin-postgres-1 bash
+root@d5c0e4f4f1b0:/#
+```
+
+Se crea la BBDD dvdrental
+
+```
+psql -U postgres 
+\l
+CREATE DATABASE dvdrental;
+\l
+exit
+```
+
+
+
+```
+root@d5c0e4f4f1b0:/# psql -U postgres
+psql (16.2 (Debian 16.2-1.pgdg120+2))
+Type "help" for help.
+
+postgres=# \l
+                                                      List of databases
+   Name    |  Owner   | Encoding | Locale Provider |  Collate   |   Ctype    | ICU Locale | ICU Rules |   Access privileges
+-----------+----------+----------+-----------------+------------+------------+------------+-----------+-----------------------
+ postgres  | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |            |           |
+ template0 | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |            |           | =c/postgres          +
+           |          |          |                 |            |            |            |           | postgres=CTc/postgres
+ template1 | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |            |           | =c/postgres          +
+           |          |          |                 |            |            |            |           | postgres=CTc/postgres
+(3 rows)
+
+postgres=# CREATE DATABASE dvdrental;
+CREATE DATABASE
+postgres=# \l
+                                                      List of databases
+   Name    |  Owner   | Encoding | Locale Provider |  Collate   |   Ctype    | ICU Locale | ICU Rules |   Access privileges
+-----------+----------+----------+-----------------+------------+------------+------------+-----------+-----------------------
+ dvdrental | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |            |           |
+ postgres  | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |            |           |
+ template0 | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |            |           | =c/postgres          +
+           |          |          |                 |            |            |            |           | postgres=CTc/postgres
+ template1 | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |            |           | =c/postgres          +
+           |          |          |                 |            |            |            |           | postgres=CTc/postgres
+(4 rows)
+
+postgres=# exit
+```
+
+Se restaura el backup
+
+```
+pg_restore -U postgres -d dvdrental /tmp/dvdrental.tar
+```
+
+
+
+```
+root@d5c0e4f4f1b0:/# pg_restore -U postgres -d dvdrental /tmp/dvdrental.tar
+root@d5c0e4f4f1b0:/#
+```
+
+Nos conectamos a la BBDD dvdrental
+
+```
+psql -U postgres
+\c dvdrental
+\dt
+```
+
+
+
+
+
+```
+\practicas\postgresql\backups>docker exec -ti tech-penguin-postgres-1 bash
+root@d5c0e4f4f1b0:/#psql -U postgres
+psql (16.2 (Debian 16.2-1.pgdg120+2))
+Type "help" for help.
+
+postgres=# \c dvdrental
+You are now connected to database "dvdrental" as user "postgres".
+dvdrental=# \dt
+             List of relations
+ Schema |     Name      | Type  |  Owner
+--------+---------------+-------+----------
+ public | actor         | table | postgres
+ public | address       | table | postgres
+ public | category      | table | postgres
+ public | city          | table | postgres
+ public | country       | table | postgres
+ public | customer      | table | postgres
+ public | film          | table | postgres
+ public | film_actor    | table | postgres
+ public | film_category | table | postgres
+ public | inventory     | table | postgres
+ public | language      | table | postgres
+ public | payment       | table | postgres
+ public | rental        | table | postgres
+ public | staff         | table | postgres
+ public | store         | table | postgres
+(15 rows)
+
+dvdrental=#
+```
 
 
 

@@ -34,7 +34,9 @@ services:
     image: postgres
     container_name: tech-penguin-postgres-1
     environment:
-      POSTGRES_USER: "tecpenguin"
-      POSTGRES_PASSWORD: "tecpenguin.com"
+      #POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "techpenguin.com"
     networks:
       - tech-penguin-net
+    ports:
+      - 5432:5432
