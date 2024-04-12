@@ -1,0 +1,37 @@
+#################################################################################
+#
+# docker-compose para una gestión mas sencilla del entorno y la BBDD postgresql.
+#
+#
+# v0.1
+# Latest updated: 2024-04-12
+#
+#################################################################################
+
+version: '3'
+
+networks:
+  tech-penguin-net:
+    driver: bridge
+
+services:  
+  
+##########
+## BBDD ##
+##########
+  tech-penguin-postgres-pgadmin:
+    image: dpage/pgadmin4
+    container_name: tech-penguin-postgres-pgadmin-1
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "tec@penguin.com"
+      PGADMIN_DEFAULT_PASSWORD: "tec@penguin.com"
+    networks:
+      - tech-penguin-net
+    ports:
+      - 8080:80
+
+
+# docker run -p 80:80 \
+#     -e 'PGADMIN_DEFAULT_EMAIL=user@domain.com' \
+#     -e 'PGADMIN_DEFAULT_PASSWORD=SuperSecret' \
+#     -d dpage/pgadmin4

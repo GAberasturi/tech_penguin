@@ -79,18 +79,66 @@ services:
 
 
 
+[Ejemplos de salidas de comandos - Arranque PGAdmin](#arranque-pgadmin)
+
+
+
+Se accede a la consola:
+
+http://localhost:8080
+
+
+
+![image-20240412125146337](../../images/pgadmin_01.png)
+
+
+
+Con las credenciales puestas en el docker-compose se puede acceder
+
+![image-20240412125323450](../../images/pgadmin_02.png)
 
 
 
 
 
+### 03. Arrancar una BBDD Postgresql docker
 
-### 02. Arrancar una BBDD Postgresql docker
+Se arranca un contenedor postgresql. Para ello se modifica el docker-compose
 
-Se arranca un contenedor postgresql
+
 
 ```
-docker run --name tech-penguin-postgres-1 -e POSTGRES_PASSWORD=Tech.Peguin.Pssword -d postgres
+#################################################################################
+#
+# docker-compose para una gestión mas sencilla del entorno y la BBDD postgresql.
+#
+#
+# v0.1
+# Latest updated: 2024-04-12
+#
+#################################################################################
+
+version: '3'
+
+networks:
+  tech-penguin-net:
+    driver: bridge
+
+services:  
+  
+##########
+## BBDD ##
+##########
+  tech-penguin-postgres-pgadmin:
+    image: dpage/pgadmin4
+    container_name: tech-penguin-postgres-pgadmin-1
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "tec@penguin.com"
+      PGADMIN_DEFAULT_PASSWORD: "tec@penguin.com"
+    networks:
+      - tech-penguin-net
+    ports:
+      - 8080:80
 ```
 
 
@@ -108,6 +156,24 @@ Sección con incidencias que nos podemos encontrar.
 
 
 ### Ejemplos de salidas de comandos
+
+
+
+
+
+#### Arranque PGAdmin
+
+```
+practicas\postgresql>docker compose up
+[+] Running 1/1
+ ✔ Container tech-penguin-postgres-pgadmin-1  Recreated                                                                                                                                                                                 0.1s
+Attaching to tech-penguin-postgres-pgadmin-1
+tech-penguin-postgres-pgadmin-1  | postfix/postlog: starting the Postfix mail system
+tech-penguin-postgres-pgadmin-1  | [2024-04-12 10:42:28 +0000] [1] [INFO] Starting gunicorn 20.1.0
+tech-penguin-postgres-pgadmin-1  | [2024-04-12 10:42:28 +0000] [1] [INFO] Listening at: http://[::]:80 (1)
+tech-penguin-postgres-pgadmin-1  | [2024-04-12 10:42:28 +0000] [1] [INFO] Using worker: gthread
+tech-penguin-postgres-pgadmin-1  | [2024-04-12 10:42:28 +0000] [87] [INFO] Booting worker with pid: 87
+```
 
 
 
